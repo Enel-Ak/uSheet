@@ -7223,14 +7223,14 @@ export default function luckysheetHandler() {
 
                 //TODO:20230509 增加行/列宽高处理
                 if ($td.attr("style")) {
-                  let w = parseInt($td.css("width")) | 0;
-                  let h = parseInt($td.css("height")) | 0;
+                  let w = Math.round((parseInt($td.css("width")) * 72) / 96);
+                  let h = Math.round((parseInt($td.css("height")) * 72) / 96);
                   cl[c] = w;
                   cw[c] = 1;
 
-                  if (or !== r && rowspan > 1) {
-                    rl[r] = rowspan > 1 ? h / rowspan : h;
-                    ch[r] = 1;
+                  if (or !== r) {
+                    rl[r_ab] = rowspan > 1 ? h / rowspan : h;
+                    ch[c_ab] = 1;
                     or = r;
                   }
                 }
@@ -7255,7 +7255,7 @@ export default function luckysheetHandler() {
           Store.luckysheetfile[
             getSheetIndex(Store.currentSheetIndex)
           ].config.customHeight = ch;
-          console.log(123, rl, ch);
+
           Store.luckysheet_selection_range = [];
           selection.pasteHandler(data, borderInfo);
 
