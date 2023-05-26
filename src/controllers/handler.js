@@ -80,6 +80,8 @@ import {
   createLuckyChart,
   hideAllNeedRangeShow,
 } from "../expendPlugins/chart/plugin";
+import { refresh } from "../global/api";
+import { convertCssToStyleList } from "./inlineString";
 
 //, columeflowset, rowflowset
 export default function luckysheetHandler() {
@@ -6688,12 +6690,12 @@ export default function luckysheetHandler() {
     document.getElementById("testdpidiv").offsetHeight * Store.devicePixelRatio;
 
   //粘贴事件处理
-  $(document).on("paste.luckysheetEvent", function(e) {
+  $(document).on("paste.luckysheetEvent", async function(e) {
     if (isEditMode()) {
       //此模式下禁用粘贴
       return;
     }
-
+    const sleep = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
     if (selection.isPasteAction) {
       $("#luckysheet-rich-text-editor").blur();
       selection.isPasteAction = false;
@@ -6879,20 +6881,16 @@ export default function luckysheetHandler() {
           }
 
           let r = 0;
-          let sr =
-            Store.luckysheetfile[getSheetIndex(Store.currentSheetIndex)]
-              .luckysheet_select_save[0].row[0];
+          let or = -1;
           let rl = {};
           let cl = {};
           let cw = {};
           let ch = {};
           let borderInfo = {};
-          $content.find("table tr").each(function() {
+
+          $content.find("table tr").each(function(rowIndex) {
             let $tr = $(this);
             let c = 0;
-            let sc =
-              Store.luckysheetfile[getSheetIndex(Store.currentSheetIndex)]
-                .luckysheet_select_save[0].column[0];
 
             //TODO:20230509 修复从WPS粘贴报错
             $tr.find(cellElements).each(function() {
@@ -7016,13 +7014,27 @@ export default function luckysheetHandler() {
                 cell.vt = 2;
               }
 
+              while (c < colLen && data[r][c] != null) {
+                c++;
+              }
+
+              if (c == colLen) {
+                return true;
+              }
+
               if (data[r][c] == null) {
                 data[r][c] = cell;
+
                 let rowspan = parseInt($td.attr("rowspan"));
                 let colspan = parseInt($td.attr("colspan"));
 
+                // 合并行或列处理
                 if (isNaN(rowspan)) {
                   rowspan = 1;
+                }
+
+                if (isNaN(colspan)) {
+                  colspan = 1;
                 }
 
                 let bg = $td.css("background-color");
@@ -7081,15 +7093,6 @@ export default function luckysheetHandler() {
                   cell.vt = 1;
                 } else {
                   cell.vt = 2;
-                }
-
-                // 合并行或列处理
-                if (isNaN(rowspan)) {
-                  rowspan = 1;
-                }
-
-                if (isNaN(colspan)) {
-                  colspan = 1;
                 }
 
                 let r_ab = Store.luckysheet_select_save[0]["row"][0] + r;
@@ -7216,17 +7219,20 @@ export default function luckysheetHandler() {
                 if (rowspan > 1 || colspan > 1) {
                   let first = { rs: rowspan, cs: colspan, r: r_ab, c: c_ab };
                   data[r][c].mc = first;
-                  c++;
                 }
 
                 //TODO:20230509 增加行/列宽高处理
                 if ($td.attr("style")) {
                   let w = parseInt($td.css("width")) | 0;
                   let h = parseInt($td.css("height")) | 0;
-                  cl[c + sc] = w;
-                  cw[c + sc] = 1;
-                  rl[r + c + sc] = h;
-                  ch[r + c + sc] = 1;
+                  cl[c] = w;
+                  cw[c] = 1;
+
+                  if (or !== r && rowspan > 1) {
+                    rl[r] = rowspan > 1 ? h / rowspan : h;
+                    ch[r] = 1;
+                    or = r;
+                  }
                 }
               }
               c++;
@@ -7249,9 +7255,20 @@ export default function luckysheetHandler() {
           Store.luckysheetfile[
             getSheetIndex(Store.currentSheetIndex)
           ].config.customHeight = ch;
-
+          console.log(123, rl, ch);
           Store.luckysheet_selection_range = [];
           selection.pasteHandler(data, borderInfo);
+
+          // TODO: 20230526 刷新表格改变行高
+          let allParam = {};
+          if (Store.config["rowlen"] != null) {
+            let cfg = $.extend(true, {}, Store.config);
+            allParam = {
+              cfg: cfg,
+              RowlChange: true,
+            };
+          }
+          jfrefreshgrid(null, null, allParam);
         }
         //复制的是图片
         else if (
