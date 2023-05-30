@@ -7,8 +7,8 @@
 ### 2023-05-30
 
 - 新增: 插入/删除行或列的校验钩子函数
-- insertCheck: (fn) => fn(true/false)
-- deleteCheck: (fn) => fn(true/false)
+- insertCheck: (type, index, value, direction, sheetIndex, fn) => fn(true/false)
+- deleteCheck: (type, index, value, direction, sheetIndex, fn) => fn(true/false)
 
 ### 2023-05-26
 

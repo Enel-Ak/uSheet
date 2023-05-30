@@ -114,9 +114,14 @@
             ],
             hook: {
               //TODO:20230530 插入删除行/列前的检查, 是否插入
-              insertCheck: (fn) => fn(false),
-              deleteCheck: (fn) => fn(false),
-
+              insertCheck: (type, index, value, direction, sheetIndex, fn) => {
+                console.log(type, index, value, direction, sheetIndex, fn);
+                fn(false);
+              },
+              deleteCheck: (type, st, ed, sheetIndex, fn) => {
+                console.log(type, st, ed, sheetIndex, fn);
+                fn(false);
+              },
               cellDragStop: function(cell, postion, sheetFile, ctx, event) {
                 // console.info(cell, postion, sheetFile, ctx, event);
               },

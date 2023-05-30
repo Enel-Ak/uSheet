@@ -29,12 +29,19 @@ import method from "../global/method";
  * @returns
  */
 function luckysheetextendtable(type, index, value, direction, sheetIndex) {
+  sheetIndex = sheetIndex ?? Store.currentSheetIndex;
   // TODO: 20230530 增加插入行/列前的校验钩子
   let isInster = true;
-  method.createHookFunction("insertCheck", (verify) => (isInster = verify));
+  method.createHookFunction(
+    "insertCheck",
+    type,
+    index,
+    value,
+    direction,
+    sheetIndex,
+    (verify) => (isInster = verify)
+  );
   if (isInster === false) return;
-
-  sheetIndex = sheetIndex ?? Store.currentSheetIndex;
 
   if (
     type == "row" &&
@@ -1061,12 +1068,19 @@ function luckysheetextendData(rowlen, newData) {
 
 //删除行列
 function luckysheetdeletetable(type, st, ed, sheetIndex) {
+  sheetIndex = sheetIndex || Store.currentSheetIndex;
+
   // TODO: 20230530 删除行/列前的校验钩子
   let isDelete = true;
-  method.createHookFunction("deleteCheck", (verify) => (isDelete = verify));
+  method.createHookFunction(
+    "deleteCheck",
+    type,
+    st,
+    ed,
+    sheetIndex,
+    (verify) => (isDelete = verify)
+  );
   if (isDelete === false) return;
-
-  sheetIndex = sheetIndex || Store.currentSheetIndex;
 
   if (
     type == "row" &&
