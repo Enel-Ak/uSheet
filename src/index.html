@@ -113,6 +113,10 @@
               },
             ],
             hook: {
+              //TODO:20230530 插入删除行/列前的检查, 是否插入
+              insertCheck: (fn) => fn(false),
+              deleteCheck: (fn) => fn(false),
+
               cellDragStop: function(cell, postion, sheetFile, ctx, event) {
                 // console.info(cell, postion, sheetFile, ctx, event);
               },
