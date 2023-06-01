@@ -205,6 +205,8 @@ function initialWorkBook() {
   zoomInitial(); //zoom method initialization
   printInitial(); //print initialization
   initListener();
+  // TODO: 新增初始化完成钩子
+  method.createHookFunction("initCompleted");
 }
 
 //获取所有表格数据
