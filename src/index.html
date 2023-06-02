@@ -116,11 +116,11 @@
               //TODO:20230530 插入删除行/列前的检查, 是否插入
               insertCheck: (type, index, value, direction, sheetIndex, fn) => {
                 console.log(type, index, value, direction, sheetIndex, fn);
-                fn(false);
+                fn(true);
               },
               deleteCheck: (type, st, ed, sheetIndex, fn) => {
                 console.log(type, st, ed, sheetIndex, fn);
-                fn(false);
+                fn(true);
               },
               cellDragStop: function(cell, postion, sheetFile, ctx, event) {
                 // console.info(cell, postion, sheetFile, ctx, event);
